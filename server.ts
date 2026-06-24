@@ -290,6 +290,29 @@ function formatMongoError(error: unknown) {
   return error;
 }
 
+function toClientSafeErrorMessage(error: unknown) {
+  const formatted = formatMongoError(error);
+  const message = formatted instanceof Error ? formatted.message : String(formatted || "");
+
+  if (message.includes("Missing MONGODB_URI")) {
+    return "ยังไม่ได้ตั้งค่า MONGODB_URI บนระบบ Deploy";
+  }
+
+  if (message.includes("MongoDB authentication failed")) {
+    return "เชื่อมต่อ MongoDB ไม่สำเร็จ: ตรวจสอบ username/password และสิทธิ์ Atlas Database Access";
+  }
+
+  if (
+    message.includes("ENOTFOUND") ||
+    message.includes("ECONNREFUSED") ||
+    message.includes("ETIMEDOUT")
+  ) {
+    return "เชื่อมต่อ MongoDB ไม่ได้: ตรวจสอบค่า MONGODB_URI, เครือข่าย, และ allow access ของคลัสเตอร์";
+  }
+
+  return "เกิดข้อผิดพลาดภายในเซิร์ฟเวอร์";
+}
+
 function isAdminAuthorized(req: Request) {
   return req.headers.authorization === `Bearer ${ADMIN_TOKEN}`;
 }
@@ -601,7 +624,7 @@ app.post(
 
 app.use((error: unknown, _req: Request, res: Response, _next: NextFunction) => {
   console.error("Server error:", formatMongoError(error));
-  res.status(500).json({ error: "เกิดข้อผิดพลาดภายในเซิร์ฟเวอร์" });
+  res.status(500).json({ error: toClientSafeErrorMessage(error) });
 });
 
 async function startServer() {
