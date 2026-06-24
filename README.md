@@ -81,17 +81,29 @@ Runs on every push to `main` and does:
 1. Install dependencies
 2. Type check (`npm run lint`)
 3. Build (`npm run build`)
-4. Trigger Render deploy hook (if configured)
+4. Wait for `production` environment approval (if required reviewers are configured)
+5. Trigger Render deploy hook (if configured)
+6. Run post-deploy health check with retry (if configured)
+
+### Enable Approval Before Deploy (Environment Protection)
+
+1. Open GitHub repository settings.
+2. Go to **Environments** and create environment named `production`.
+3. Add **Required reviewers** to enforce manual approval.
+4. (Optional) Add a wait timer for additional safety.
 
 ### Required GitHub Secret
 
 Add this secret in GitHub repository settings:
 
 - `RENDER_DEPLOY_HOOK_URL`
+- `RENDER_HEALTHCHECK_URL` (example: `https://your-app.onrender.com/api/stats`)
 
 How to get it:
 1. In Render service settings, open **Deploy Hooks**.
 2. Create a new hook for your service.
 3. Copy the URL and store it in GitHub as `RENDER_DEPLOY_HOOK_URL`.
 
-If this secret is not set, the workflow still validates build quality but skips deploy trigger.
+If `RENDER_DEPLOY_HOOK_URL` is not set, the workflow still validates build quality but skips deploy trigger.
+
+If `RENDER_HEALTHCHECK_URL` is not set, deploy is still triggered but the health-check step is skipped.

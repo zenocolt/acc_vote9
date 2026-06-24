@@ -12,6 +12,8 @@ concurrency:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    environment:
+      name: production
 
     steps:
       - name: Checkout
@@ -39,6 +41,27 @@ jobs:
             -X POST "$RENDER_DEPLOY_HOOK_URL"
         env:
           RENDER_DEPLOY_HOOK_URL: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
+
+      - name: Health check after deploy
+        if: ${{ secrets.RENDER_DEPLOY_HOOK_URL != '' && secrets.RENDER_HEALTHCHECK_URL != '' }}
+        run: |
+          echo "Checking service health at $RENDER_HEALTHCHECK_URL"
+          for attempt in $(seq 1 30); do
+            if curl --fail --show-error --silent "$RENDER_HEALTHCHECK_URL" > /dev/null; then
+              echo "Health check passed on attempt $attempt"
+              exit 0
+            fi
+            echo "Attempt $attempt failed. Waiting 10 seconds before retry..."
+            sleep 10
+          done
+          echo "Health check failed after multiple retries."
+          exit 1
+        env:
+          RENDER_HEALTHCHECK_URL: ${{ secrets.RENDER_HEALTHCHECK_URL }}
+
+      - name: Skip health check (secret missing)
+        if: ${{ secrets.RENDER_DEPLOY_HOOK_URL != '' && secrets.RENDER_HEALTHCHECK_URL == '' }}
+        run: echo "RENDER_HEALTHCHECK_URL is not configured. Deploy was triggered, health check skipped."
 
       - name: Skip deploy (secret missing)
         if: ${{ secrets.RENDER_DEPLOY_HOOK_URL == '' }}
