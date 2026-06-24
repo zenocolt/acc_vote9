@@ -627,7 +627,11 @@ async function startServer() {
   });
 }
 
-startServer().catch((error) => {
-  console.error("Failed to start server:", formatMongoError(error));
-  process.exit(1);
-});
+export default app;
+
+if (!process.env.VERCEL) {
+  startServer().catch((error) => {
+    console.error("Failed to start server:", formatMongoError(error));
+    process.exit(1);
+  });
+}

@@ -61,6 +61,20 @@ You can deploy this app as a single Node service (frontend + backend served by E
    - Build: `npm run build`
    - Start: `npm run start`
 
+### Option C: Vercel
+
+This repository includes `vercel.json` and a serverless API handler at `api/index.ts`.
+
+1. Import the repository into Vercel.
+2. Keep framework/build settings from `vercel.json`.
+3. Set Vercel environment variables:
+   - `MONGODB_URI` (required)
+   - `MONGODB_DB_NAME` (optional, default is `vote_starmoon_accounting`)
+   - `NODE_ENV=production`
+   - `GEMINI_API_KEY` (optional)
+4. Deploy and verify:
+   - `https://<your-domain>/api/stats` should return JSON.
+
 ## CI/CD With GitHub Actions
 
 This repo uses split workflows:
