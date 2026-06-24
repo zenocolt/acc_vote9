@@ -629,7 +629,10 @@ async function startServer() {
 
 export default app;
 
-if (!process.env.VERCEL) {
+const entryFileName = process.argv[1] ? path.basename(process.argv[1]) : "";
+const isDirectExecution = entryFileName === "server.ts" || entryFileName === "server.cjs";
+
+if (isDirectExecution) {
   startServer().catch((error) => {
     console.error("Failed to start server:", formatMongoError(error));
     process.exit(1);
