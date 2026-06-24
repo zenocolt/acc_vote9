@@ -3,7 +3,6 @@ import fs from "fs";
 import path from "path";
 import dotenv from "dotenv";
 import { Collection, MongoClient } from "mongodb";
-import { createServer as createViteServer } from "vite";
 
 dotenv.config();
 
@@ -609,6 +608,7 @@ async function startServer() {
   await getCollections();
 
   if (process.env.NODE_ENV !== "production") {
+    const { createServer: createViteServer } = await import("vite");
     const vite = await createViteServer({
       server: { middlewareMode: true },
       appType: "spa",
