@@ -1,13 +1,8 @@
 {
   "version": 2,
-  "functions": {
-    "api/index.ts": {
-      "includeFiles": "server.ts"
-    }
-  },
   "builds": [
     {
-      "src": "api/index.ts",
+      "src": "server.ts",
       "use": "@vercel/node"
     },
     {
@@ -21,7 +16,7 @@
   "routes": [
     {
       "src": "/api/(.*)",
-      "dest": "/api/index.ts"
+      "dest": "/server.ts"
     },
     {
       "handle": "filesystem"
