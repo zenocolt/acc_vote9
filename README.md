@@ -21,6 +21,9 @@ View your app in AI Studio: https://ai.studio/apps/694da3dc-3acc-4932-853d-93e58
 6. Start MongoDB, then run the app:
    `npm run dev`
 
+Production template:
+- Use [.env.production.example](.env.production.example) as the baseline for Render/Railway variables.
+
 ## Data Storage
 
 - The backend now stores candidates, votes, and admin settings in MongoDB.
@@ -58,15 +61,27 @@ You can deploy this app as a single Node service (frontend + backend served by E
    - Build: `npm run build`
    - Start: `npm run start`
 
-## Auto Deploy From GitHub Actions (Render Hook)
+## CI/CD With GitHub Actions
 
-This repo includes a workflow at `.github/workflows/deploy-render.yml`.
+This repo uses split workflows:
 
-When code is pushed to `main`, the workflow:
-1. Installs dependencies
-2. Runs TypeScript check (`npm run lint`)
-3. Builds production output (`npm run build`)
-4. Triggers Render deploy hook (if configured)
+1. CI for pull requests: `.github/workflows/ci.yml`
+2. CD for main branch: `.github/workflows/cd-render.yml`
+
+### CI (Pull Request)
+
+Runs on every PR targeting `main` and does:
+1. Install dependencies
+2. Type check (`npm run lint`)
+3. Build (`npm run build`)
+
+### CD (Main Branch)
+
+Runs on every push to `main` and does:
+1. Install dependencies
+2. Type check (`npm run lint`)
+3. Build (`npm run build`)
+4. Trigger Render deploy hook (if configured)
 
 ### Required GitHub Secret
 

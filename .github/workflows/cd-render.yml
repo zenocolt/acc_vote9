@@ -1,12 +1,16 @@
-name: Build and Deploy (Render)
+name: CD (Render)
 
 on:
   push:
     branches: [main]
   workflow_dispatch:
 
+concurrency:
+  group: cd-render-main
+  cancel-in-progress: true
+
 jobs:
-  build-and-deploy:
+  deploy:
     runs-on: ubuntu-latest
 
     steps:
