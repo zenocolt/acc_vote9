@@ -437,6 +437,31 @@ app.get(
   })
 );
 
+app.get(
+  "/api/health-db",
+  asyncHandler(async (_req, res) => {
+    try {
+      await getCollections();
+      res.json({
+        ok: true,
+        dbName: MONGODB_DB_NAME,
+        hasMongoUri: Boolean(MONGODB_URI),
+      });
+    } catch (error) {
+      const formatted = formatMongoError(error);
+      const detail = formatted instanceof Error ? formatted.message : String(formatted || "");
+
+      res.status(500).json({
+        ok: false,
+        error: toClientSafeErrorMessage(error),
+        detail,
+        dbName: MONGODB_DB_NAME,
+        hasMongoUri: Boolean(MONGODB_URI),
+      });
+    }
+  })
+);
+
 app.post(
   "/api/admin/login",
   asyncHandler(async (req, res) => {
