@@ -71,6 +71,7 @@ export default function App() {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [notification, setNotification] = useState<{ type: NotificationType; message: string } | null>(null);
   const notificationTimeoutRef = useRef<number | null>(null);
+  const isAdminTabLocked = Boolean(studentId) && !adminToken;
 
   // Load Initial Candidates Data & Stats
   useEffect(() => {
@@ -781,11 +782,21 @@ export default function App() {
             </button>
 
             <button
-              onClick={() => setActiveTab("admin")}
+              onClick={() => {
+                if (isAdminTabLocked) {
+                  showNotification("error", "กำลังอยู่ในโหมดนักศึกษา กรุณาออกจากระบบนักศึกษาก่อนเข้าแอดมิน");
+                  return;
+                }
+                setActiveTab("admin");
+              }}
+              disabled={isAdminTabLocked}
+              title={isAdminTabLocked ? "ออกจากระบบนักศึกษาก่อนเข้าแอดมิน" : "เข้าสู่โหมดแอดมิน"}
               className={`flex items-center gap-1.5 py-3 px-4 text-sm font-medium transition-all border-b-2 ${
                 activeTab === "admin"
                   ? "text-amber-400 border-amber-400 font-semibold"
                   : "text-slate-300 border-transparent hover:text-white"
+              } ${
+                isAdminTabLocked ? "cursor-not-allowed opacity-50 hover:text-slate-300" : ""
               }`}
             >
               <Lock className="w-4 h-4" />
